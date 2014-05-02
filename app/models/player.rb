@@ -1,6 +1,8 @@
 class Player < ActiveRecord::Base
   before_save { self.aka = aka.downcase }
   
+  default_scope -> { order('name DESC') }
+
   validates :name,  presence: true, length: { maximum: 50 }
   VALID_AKA_REGEX = /\A[\w\-]+\z/i
   validates :aka,  presence: true, 

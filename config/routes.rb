@@ -1,7 +1,9 @@
 FantasyEsports::Application.routes.draw do
 
-  get "player/new"
+  get "teams/new"
+  get "players/new"
   get "fantasy_teams/new"
+  
   resources :users
   resources :fantasy_teams
   resources :sessions, only: [:new, :create, :destroy]
@@ -15,7 +17,7 @@ FantasyEsports::Application.routes.draw do
   match '/contact', to: 'static_pages#contact', via: 'get'
 
   # Any routes that aren't defined above here go to the 404
-  match "*a", :to => "application#routing_error", via: 'get'
+  #match "*a", :to => "application#routing_error", via: 'get'
 
   # The priority is based upon order of creation: first created -> highest priority.
   # See how all your routes lay out with "rake routes".
