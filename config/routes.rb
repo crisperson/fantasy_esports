@@ -1,6 +1,8 @@
 FantasyEsports::Application.routes.draw do
 
+  get "fantasy_teams/new"
   resources :users
+  resources :fantasy_teams
   resources :sessions, only: [:new, :create, :destroy]
   root  'static_pages#home'
   match '/signup',  to: 'users#new',            via: 'get'

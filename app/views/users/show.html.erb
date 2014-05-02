@@ -8,4 +8,13 @@
       </h1>
     </section>
   </aside>
+  <div class="span8">
+    <% if @user.fantasy_teams.any? %>
+      <h3>Fantasy Team List (<%= @user.fantasy_teams.count %>)</h3>
+      <ol class="fantasy_teams">
+        <%= render @fantasy_teams %>
+      </ol>
+      <%= will_paginate @fantasy_teams %>
+    <% end %>
+  </div>  
 </div>

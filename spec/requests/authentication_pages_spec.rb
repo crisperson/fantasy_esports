@@ -31,7 +31,8 @@ describe "Authentication" do
       before { sign_in user }
 
       it { should have_title(user.name) }
-      it { should have_link('Users',       href: users_path) }      
+     # only admins now
+     # it { should have_link('Users',       href: users_path) }      
       it { should have_link('Profile',     href: user_path(user)) }
       it { should have_link('Settings',    href: edit_user_path(user)) }
       it { should have_link('Sign out',    href: signout_path) }
@@ -58,6 +59,19 @@ describe "Authentication" do
 
         describe "submitting to the update action" do
           before { patch user_path(user) }
+          specify { expect(response).to redirect_to(signin_path) }
+        end
+      end
+
+      describe "in the fantasy teams controller" do
+
+        describe "submitting to the create action" do
+          before { post fantasy_teams_path }
+          specify { expect(response).to redirect_to(signin_path) }
+        end
+
+        describe "submitting to the destroy action" do
+          before { delete fantasy_team_path(FactoryGirl.create(:fantasy_team)) }
           specify { expect(response).to redirect_to(signin_path) }
         end
       end
@@ -89,11 +103,12 @@ describe "Authentication" do
         before { delete user_path(user) }
         specify { expect(response).to redirect_to(root_url) }
       end
+
     end
 
     describe "as wrong user" do
       let(:user) { FactoryGirl.create(:user) }
-      let(:wrong_user) { FactoryGirl.create(:user, aka: "wrong aka", email: "wrong@example.com") }
+      let(:wrong_user) { FactoryGirl.create(:user, aka: "wrongaka", email: "wrong@example.com") }
       before { sign_in user, no_capybara: true }
 
       describe "submitting a GET request to the Users#edit action" do

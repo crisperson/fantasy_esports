@@ -10,4 +10,8 @@ FactoryGirl.define do
       admin true
   end
  end
+  factory :fantasy_team do
+    tname "Lorem ipsum"
+    user
+  end
 end

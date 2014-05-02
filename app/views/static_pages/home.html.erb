@@ -1,12 +1,29 @@
-<div class="center hero-unit">
-  <h1>Welcome to the Fantasy eSports Web app</h1>
+<% if signed_in? %>
+  <div class="row">
+    <aside class="span4">
+      <section>
+        <%= render 'shared/user_info' %>
+      </section>
+      <section>
+        <%= render 'shared/fantasy_team_form' %>
+      </section>
+    </aside>
+    <div class="span8">
+      <h3>Fantasy Team List</h3>
+      <%= render 'shared/feed' %>
+    </div>
+  </div>
+<% else %>
+  <div class="center hero-unit">
+    <h1>Welcome to Fantasy eSports</h1>
 
-  <h2>
-    This is the homepage for the fantasy eSports website.
-  </h2>
+    <h2>
+    	This the home team for fantasy eSports.
+    </h2>
 
-  <%= link_to "Sign up now!", signup_path, class: "btn btn-large btn-primary" %>
+    <%= link_to "Sign up now!", signup_path,
+                                class: "btn btn-large btn-primary" %>
+  </div>
 
-</div>
-
-<%= link_to image_tag("fantasyesports.png", alt: "fantasyesports"), 'http://softwarewithmike.com/' %>
+  <%= link_to image_tag("fantasyesports.png", alt: "Fantasy eSports"), 'http://softwarewithmike.com/' %>
+<% end %>

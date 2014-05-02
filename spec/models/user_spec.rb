@@ -15,6 +15,8 @@ describe User do
   it { should respond_to(:remember_token) }
   it { should respond_to(:authenticate) }
   it { should respond_to(:admin) }
+  it { should respond_to(:fantasy_teams) }
+  it { should respond_to(:feed) }
 
   it { should be_valid }
   it { should_not be_admin }
@@ -74,6 +76,26 @@ describe User do
     end
   end
 
+  describe "when aka format is invalid" do
+    it "should be invalid" do
+      akas = %w[trips@trips trips.trips trips+trips tripsy_21asdl() trips\ trips]
+      akas.each do |invalid_aka|
+        @user.aka = invalid_aka
+        expect(@user).not_to be_valid
+      end
+    end
+  end
+
+  describe "when aka format is valid" do
+    it "should be valid" do
+      akas = %w[trips tr1ps trips-ington trips_ington trips_ trips- TRIPS_ALL_DAY trips_ALL_DAY_219301923]
+      akas.each do |valid_aka|
+        @user.aka = valid_aka
+        expect(@user).to be_valid
+      end
+    end
+  end  
+
   describe "when aka is already taken" do
     before do
       user_with_same_aka = @user.dup
@@ -132,4 +154,38 @@ describe User do
     before { @user.save }
     its(:remember_token) { should_not be_blank }
   end
+
+  describe "fantasy team associations" do
+
+    before { @user.save }
+    let!(:older_team) do
+      FactoryGirl.create(:fantasy_team, user: @user, created_at: 1.day.ago)
+    end
+    let!(:newer_team) do
+      FactoryGirl.create(:fantasy_team, user: @user, created_at: 1.hour.ago)
+    end
+
+    describe "status" do
+      let(:other_user_team) do
+        FactoryGirl.create(:fantasy_team, user: FactoryGirl.create(:user))
+      end
+
+      its(:feed) { should include(newer_team) }
+      its(:feed) { should include(older_team) }
+      its(:feed) { should_not include(other_user_team) }
+    end
+
+    it "should have the right fantasy team in the right order" do
+      expect(@user.fantasy_teams.to_a).to eq [newer_team, older_team]
+    end
+
+    it "should destroy associated fantasy teams" do
+      fantasy_teams = @user.fantasy_teams.to_a
+      @user.destroy
+      expect(fantasy_teams).not_to be_empty
+      fantasy_teams.each do |fantasy_team|
+        expect(FantasyTeam.where(id: fantasy_team.id)).to be_empty
+      end
+    end    
+  end  
 end

@@ -65,7 +65,7 @@ describe "User pages" do
 
     describe "with valid information" do
       let(:new_name)  { "New Name" }
-      let(:new_aka)  { "New AKA" }
+      let(:new_aka)  { "NewAKA" }
       let(:new_email) { "new@example.com" }
 
       before do
@@ -97,49 +97,84 @@ describe "User pages" do
     end
   end 
 
+  #only for admin now
   describe "index" do
-    let(:user) { FactoryGirl.create(:user) }
-    before(:each) do
-      sign_in user
-      visit users_path
+    let(:user) { FactoryGirl.create(:admin) }
+    let(:non_admin) { FactoryGirl.create(:user) }
+
+
+    describe "as non-admin user" do
+      before do
+        sign_in non_admin
+        visit users_path
+      end
+
+      before { visit users_path }
+      it { should have_title('Fantasy eSports') }
     end
 
-    it { should have_title('All users') }
-    it { should have_content('All users') }
+    describe "as admin user" do
 
-    describe "pagination" do
+      before do
+        sign_in user
+        visit users_path
+      end
 
-      before(:all) { 30.times { FactoryGirl.create(:user) } }
-      after(:all)  { User.delete_all }
+      # only admin now
+      it { should have_title('All users') }
+      it { should have_content('All users') }
 
-      it { should have_selector('div.pagination') }
+      describe "pagination" do
 
-      it "should list each user" do
-        User.paginate(page: 1).each do |user|
-          expect(page).to have_selector('li', text: user.name)
+        before(:all) { 30.times { FactoryGirl.create(:user) } }
+        after(:all)  { User.delete_all }
+
+        it { should have_selector('div.pagination') }
+
+        it "should list each user" do
+          User.paginate(page: 1).each do |user|
+            expect(page).to have_selector('li', text: user.name)
+          end
         end
       end
-    end
-    
-    describe "delete links" do
+      
+      describe "delete links" do
 
-      it { should_not have_link('delete') }
+        it { should_not have_link('delete') }
 
-      describe "as an admin user" do
-        let(:admin) { FactoryGirl.create(:admin) }
-        before do
-          sign_in admin
-          visit users_path
+        describe "as an admin user" do
+          let(:admin) { FactoryGirl.create(:admin) }
+          before do
+            sign_in admin
+            visit users_path
+          end
+
+          it { should have_link('delete', href: user_path(User.first)) }
+          it "should be able to delete another user" do
+            expect do
+              click_link('delete', match: :first)
+            end.to change(User, :count).by(-1)
+          end
+          it { should_not have_link('delete', href: user_path(admin)) }
         end
-
-        it { should have_link('delete', href: user_path(User.first)) }
-        it "should be able to delete another user" do
-          expect do
-            click_link('delete', match: :first)
-          end.to change(User, :count).by(-1)
-        end
-        it { should_not have_link('delete', href: user_path(admin)) }
       end
     end    
   end
+
+  describe "profile page" do
+    let(:user) { FactoryGirl.create(:user) }
+    let!(:ft1) { FactoryGirl.create(:fantasy_team, user: user, tname: "Foo") }
+    let!(:ft2) { FactoryGirl.create(:fantasy_team, user: user, tname: "Bar") }
+
+    before { visit user_path(user) }
+
+    it { should have_content(user.name) }
+    it { should have_title(user.name) }
+
+    describe "microposts" do
+      it { should have_content(ft1.tname) }
+      it { should have_content(ft2.tname) }
+      it { should have_content(user.fantasy_teams.count) }
+    end
+  end  
 end
