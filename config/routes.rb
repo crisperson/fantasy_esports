@@ -1,5 +1,6 @@
 FantasyEsports::Application.routes.draw do
 
+  get "player/new"
   get "fantasy_teams/new"
   resources :users
   resources :fantasy_teams
